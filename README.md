@@ -54,7 +54,7 @@ You are tasked with building a File Selector component for a web application (se
 
 ### File Selection and File Information:
 
-- Allow users to select a file by clicking on it and logs the respective details.
+- Allow users to select a file by clicking on it and logs the respective file path.
 
 ## Additional time?
 
