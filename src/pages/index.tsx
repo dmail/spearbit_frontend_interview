@@ -1,11 +1,127 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
+import Head from "next/head";
+import { Inter } from "next/font/google";
+import styles from "@/styles/Home.module.css";
+import FolderIconSvg from "./folder_icon";
+import FileIconSvg from "./file_icon";
+import ArrowIconSvg from "./arrow_icon";
+import React from "react";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
+
+interface FileData {
+  name: string;
+  type: "folder" | "file";
+  children?: FileData[];
+}
+
+interface FolderProps {
+  path: string[];
+  name: string;
+  children: FileData[];
+}
+
+interface FileProps {
+  path: string[];
+  name: string;
+}
+
+const backendResponseJson = [
+  {
+    name: "src",
+    type: "folder",
+    children: [
+      {
+        name: "data",
+        type: "folder",
+        children: [
+          {
+            name: "index.js",
+            type: "file",
+          },
+        ],
+      },
+      {
+        name: "index.js",
+        type: "file",
+      },
+      {
+        name: "index.css",
+        type: "file",
+      },
+    ],
+  },
+  {
+    name: "state.ts",
+    type: "file",
+  },
+];
+
+const Folder = ({ name, path, children }: FolderProps) => {
+  const [isExpanded, setIsExpanded] = React.useState(true);
+
+  return (
+    <div className={styles.folder}>
+      <div
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+        }}
+        className="folder_info"
+      >
+        <span>
+          <ArrowIconSvg opened={isExpanded} />
+        </span>
+        <span className={styles.folder_icon}>
+          <FolderIconSvg />
+        </span>
+        <span className={styles.folder_name}>{name}</span>
+      </div>
+      {isExpanded && (
+        <div className={styles.folder_content}>
+          {children.map((child) => {
+            if (child.type === "folder") {
+              return (
+                <Folder
+                  key={child.name}
+                  path={[...path, child.name]}
+                  name={child.name}
+                >
+                  {child.children}
+                </Folder>
+              );
+            }
+            return (
+              <File
+                key={child.name}
+                path={[...path, child.name]}
+                name={child.name}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const File = ({ path, name }: FileProps) => {
+  return (
+    <div
+      onClick={() => {
+        console.log(path.join("/"));
+      }}
+      className={styles.file}
+    >
+      <span className={styles.file_icon}>
+        <FileIconSvg />
+      </span>
+      <span className={styles.file_name}>{name}</span>
+    </div>
+  );
+};
 
 export default function Home() {
+  const rootDirectoryContent = backendResponseJson;
+
   return (
     <>
       <Head>
@@ -16,99 +132,11 @@ export default function Home() {
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>src/pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
-
-        <div className={styles.center}>
-          <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-        </div>
-
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+          <Folder path={[]} name="/">
+            {rootDirectoryContent}
+          </Folder>
         </div>
       </main>
     </>
-  )
+  );
 }
